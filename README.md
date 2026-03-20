@@ -6,7 +6,7 @@ Tool web untuk menganalisa top produk dan membandingkan perubahan harga antar bu
 
 Buka link berikut di browser:
 ```
-https://[nama-app].streamlit.app
+https://aha-price-before-vs-after-sdhbggurio124.streamlit.app/
 ```
 
 ## 📖 Cara Penggunaan
