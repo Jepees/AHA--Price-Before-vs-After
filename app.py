@@ -5,7 +5,7 @@ import io
 import tempfile
 import os
 from harga_formula_proporsional import (
-    proses_penjualan_shopee, _get_bulan_dominan, _rekap_numerik
+    proses_penjualan_shopee, _get_bulan_dominan, _rekap_numerik, parse_shopee_filename
 )
 
 # ---------------------------------------------------------
@@ -455,12 +455,14 @@ if mode == "📋 Top Produk (1 File)":
         # Format tabel (operasi ringan, jalan setiap UI berubah)
         urut_param = "qty" if "Qty" in urut else "omzet"
         hasil_html, hasil_raw = _format_top_produk(rekap, bulan, urut_param, persen)
+        # Parse filename
+        kode_brand, display_name = parse_shopee_filename(file.name)
         
         # Result header
         st.markdown(f"""
         <div class="result-header">
-            <h3>✅ Berhasil! Top {persen}% Produk ({len(hasil_html)} SKU) — Diurutkan berdasarkan {urut}</h3>
-            <p>📄 File: {file.name}</p>
+            <h3>✅ Berhasil! {kode_brand} Top {persen}% Produk ({len(hasil_html)} SKU) — Diurutkan berdasarkan {urut}</h3>
+            <p>📄 File: {display_name}</p>
         </div>
         """, unsafe_allow_html=True)
         
@@ -550,14 +552,15 @@ else:
         urut_param_ba = "qty" if "Qty" in urut_ba else "omzet"
         hasil_html, hasil_raw = _format_before_after(rekap_before, rekap_after, bulan_before, bulan_after, urut_param_ba, persen)
         
-        # Extract brand code dari nama file
-        kode_brand = file_before.name.rsplit('.', 1)[0].split(' ')[0] if ' ' in file_before.name else file_before.name.rsplit('.', 1)[0]
+        # Parse filenames
+        kode_brand, display_before = _parse_shopee_filename(file_before.name)
+        _, display_after = _parse_shopee_filename(file_after.name)
         
         # Result header
         st.markdown(f"""
         <div class="result-header">
             <h3>✅ Berhasil! Perbandingan Harga — {kode_brand} Top {persen}% Produk ({len(hasil_html)} SKU)</h3>
-            <p>📄 BEFORE: {file_before.name} → AFTER: {file_after.name}</p>
+            <p>📄 BEFORE: {display_before} → AFTER: {display_after}</p>
         </div>
         """, unsafe_allow_html=True)
         

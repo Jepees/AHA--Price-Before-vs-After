@@ -3,7 +3,9 @@ import numpy as np
 import zipfile
 import tempfile
 import os
+import re
 import glob
+from datetime import datetime
 
 def clean_number(series):
     """
@@ -409,13 +411,47 @@ def bandingkan_harga_before_after(file_before, file_after, urut_berdasarkan="omz
     
     return output
 
+# ---------------------------------------------------------
+# PARSE NAMA FILE SHOPEE
+# ---------------------------------------------------------
+_BULAN_MAP = {1: "Jan", 2: "Feb", 3: "Mar", 4: "Apr", 5: "May", 6: "Jun",
+              7: "Jul", 8: "Aug", 9: "Sep", 10: "Oct", 11: "Nov", 12: "Dec"}
+
+def parse_shopee_filename(filename):
+    """
+    Parse nama file Shopee dan kembalikan (kode_brand, display_name).
+    
+    Mendukung 2 format:
+      1. Format Shopee asli: KodeBrand_Order.all.YYYYMMDD_YYYYMMDD.ext
+         → kode_brand = "KodeBrand", display = "KodeBrand SHO (1-28 Feb 26).ext"
+      2. Format sudah di-rename: "KodeBrand SHO (1-28 Feb 26).ext"
+         → kode_brand = "KodeBrand", display = nama file apa adanya
+    """
+    # Coba format Shopee asli
+    match = re.search(r"^(.+?)_Order\.all\.(\d{8})_(\d{8})", filename)
+    if match:
+        kode_brand = match.group(1).strip().upper()
+        tgl_awal = datetime.strptime(match.group(2), "%Y%m%d").date()
+        tgl_akhir = datetime.strptime(match.group(3), "%Y%m%d").date()
+        bulan_kode = _BULAN_MAP.get(tgl_akhir.month, "???")
+        tahun_2d = str(tgl_akhir.year)[-2:]
+        periode = f"({tgl_awal.day}-{tgl_akhir.day} {bulan_kode} {tahun_2d})"
+        ext = os.path.splitext(filename)[1]
+        display_name = f"{kode_brand} SHO {periode}{ext}"
+        return kode_brand, display_name
+    
+    # Fallback: format lama (spasi sebagai pemisah)
+    nama_tanpa_ext = filename.rsplit('.', 1)[0]
+    kode_brand = nama_tanpa_ext.split(' ')[0] if ' ' in nama_tanpa_ext else nama_tanpa_ext
+    return kode_brand, filename
+
 
 if __name__ == "__main__":
-    # Contoh pemakaian pada file dummy/csv yang berhasil aku baca sebelumnya
-    file_contoh = r"D:\Dani's Projects\AUTOMATION (By Dani)\Harga Before After\data contoh\ROS SHO (1-31 Jan 26) exx.csv"
+    # Contoh penggunaan
+    file_contoh = "data contoh/GBU SHO (1-28 Feb 26).xlsx"
     
-    # 1. Proses hitungan tiap baris pesanan
-    df_detail = proses_penjualan_shopee(file_contoh, delimiter=';')
+    # 1. Proses file pesanan Shopee   
+    df_detail = proses_penjualan_shopee(file_contoh)
     
     # 2. Proses rekap data menjadi bentuk tabel Omzet Produk (seperti di gambarmu)
     df_rekap = rekap_agregasi_produk(df_detail)
