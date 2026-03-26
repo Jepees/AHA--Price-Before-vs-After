@@ -553,8 +553,8 @@ else:
         hasil_html, hasil_raw = _format_before_after(rekap_before, rekap_after, bulan_before, bulan_after, urut_param_ba, persen)
         
         # Parse filenames
-        kode_brand, display_before = _parse_shopee_filename(file_before.name)
-        _, display_after = _parse_shopee_filename(file_after.name)
+        kode_brand, display_before = parse_shopee_filename(file_before.name)
+        _, display_after = parse_shopee_filename(file_after.name)
         
         # Result header
         st.markdown(f"""
