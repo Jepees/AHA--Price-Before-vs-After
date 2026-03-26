@@ -11,7 +11,7 @@ https://aha-price-before-vs-after-sdhbggurio124.streamlit.app/
 
 ## 📁 Format Nama File
 
-Sebelum upload, **tambahkan kode brand di depan nama file** yang diunduh dari Shopee:
+Sebelum upload, **tambahkan kode brand di depan nama file** yang diunduh dari Shopee, Contoh:
 
 | Asli dari Shopee | Setelah di-rename |
 |---|---|
